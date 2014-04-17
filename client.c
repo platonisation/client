@@ -19,7 +19,7 @@ chaque serveur.
 
  Client
 **Chaque client est identié par un pseudo.
-**Un client p eut lister les pseudos des utilisateurs connectés au réseau, et ignorer les messages et
+**Un client peut lister les pseudos des utilisateurs connectés au réseau, et ignorer les messages et
 demandes d'envoi de chiers d'un ou plusieurs d'entre eux.
 **Des group es peuvent être créés par n'imp orte quel utilisateur et n'imp orte quel utilisateur p eut
 rejoindre un group e.
@@ -38,6 +38,16 @@ un autre serveur.
 **Un utilisateur enregistré p eut être administrateur du réseau. Il p eut alors expulser bannir un
 autre utilisateur
 
+
+
+Principe le client envoie une commande au serveur, le serveur répond. exemple :
+
+> ??
+< liste des commande : ...
+______________________
+
+> help
+<liste des commande : ...
  *
  */
 
