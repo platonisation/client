@@ -4,7 +4,40 @@
  *  Created on: Apr 16, 2014
  *  Author: Timoté Bonnin
  *
- *  School project
+ *  School project :
+ *
+ *
+Dans la continuité des TPs, le pro jet a p our ob jectif la mise en œuvre d'une application de chat client/serveur en C:
+**échanger des messages entre 2, plusieurs, ou la totalité des clients connectés sur le réseau ;
+**s'envoyer des fichiers ;
+**échanger des messages entre clients du même réseau local sans intervention d'un serveur.
+
+Afin de pallier la faiblesse inhérente a une architecture centralisée, votre réseau de chat doit prévoir
+la collab oration de plusieurs serveurs afin d'en ourir une vision globale aux utilisateurs connectés à
+chaque serveur.
+
+
+ Client
+**Chaque client est identié par un pseudo.
+**Un client p eut lister les pseudos des utilisateurs connectés au réseau, et ignorer les messages et
+demandes d'envoi de chiers d'un ou plusieurs d'entre eux.
+**Des group es peuvent être créés par n'imp orte quel utilisateur et n'imp orte quel utilisateur p eut
+rejoindre un group e.
+**Un utilisateur peut lister les pseudos des utilisateurs d'un group e. Un group e représente un sous-
+ensemble d'utilisateurs. Les messages émis à destination d'un group e sont transmis à l'ensemble
+des utilisateurs appartenant à ce group e.
+**L'utilisateur qui a créé le group e a le droit d'expulser les autres utilisateurs qui ont rejoint le
+groupe
+
+ Serveur
+**Des notications sont envoyées aux clients à chaque connexion et déconnexion.
+**Chaque serveur doit maintenir une liste des membres connectés sur le réseau.
+**Un utilisateur p eut créer un compte (pseudo / mot de passe). Ce doit être une notion globale au
+réseau : un compte enregistré depuis un serveur doit être reconnu à une pro chaine connexion sur
+un autre serveur.
+**Un utilisateur enregistré p eut être administrateur du réseau. Il p eut alors expulser bannir un
+autre utilisateur
+
  *
  */
 
