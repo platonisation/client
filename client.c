@@ -107,23 +107,29 @@ ssize_t Readline(int sockd, void *vptr, size_t maxlen) {
 /*  Write a line to a socket  */
 
 ssize_t Writeline(int sockd, const void *vptr, size_t n) {
-    size_t      nleft;
-    ssize_t     nwritten;
-    const char *buffer;
 
-    buffer = vptr;
+	size_t      nleft;
+    ssize_t     nwritten;
+//     char *buffer;
+
+//    buffer = vptr;
     nleft  = n;
 
-    while ( nleft > 0 ) {
-	if ( (nwritten = write(sockd, buffer, nleft)) <= 0 ) {
-	    if ( errno == EINTR )
-		nwritten = 0;
-	    else
-		return -1;
-	}
-	nleft  -= nwritten;
-	buffer += nwritten;
+   unsigned char buffer[12]={0xFE,0x01,0x69,0x00};
+    if(write(sockd, buffer, 12) <0){
+    	printf("FAILIED");
     }
+
+//    while ( nleft > 0 ) {
+//	if ( (nwritten = write(sockd, buffer, nleft)) <= 0 ) {
+//	    if ( errno == EINTR )
+//		nwritten = 0;
+//	    else
+//		return -1;
+//	}
+//	nleft  -= nwritten;
+//	buffer += nwritten;
+//    }
 
     return n;
 }
