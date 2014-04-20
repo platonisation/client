@@ -115,8 +115,8 @@ ssize_t Writeline(int sockd, const void *vptr, size_t n) {
 //    buffer = vptr;
     nleft  = n;
 
-   unsigned char buffer[12]={0xFE,0x01,0x69,0x00};
-    if(write(sockd, buffer, 12) <0){
+   unsigned char buffer[12]={0xFE,0x01,0x69};
+    if(write(sockd, buffer, 3) <0){
     	printf("FAILIED");
     }
 
@@ -139,6 +139,8 @@ ssize_t Writeline(int sockd, const void *vptr, size_t n) {
 /*  main()  */
 
 int main(int argc, char *argv[]) {
+
+	int quit = 0;
 
     int       conn_s;                /*  connection socket         */
     short int port;                  /*  port number               */
@@ -194,22 +196,28 @@ int main(int argc, char *argv[]) {
 	exit(EXIT_FAILURE);
     }
 
+    while(!quit){
 
-    /*  Get string to echo from user  */
+		/*  Get string to echo from user  */
 
-    printf("Enter the string to echo: ");
-    fgets(buffer, MAX_LINE, stdin);
+		printf("Enter the string to echo: ");
+		fgets(buffer, MAX_LINE, stdin);
+
+		if(strcmp(buffer,"quit\n") == 0){
+			quit=1;
+		}
+		else {
+			/*  Send string to echo server, and retrieve response  */
+
+			Writeline(conn_s, buffer, strlen(buffer));
+			Readline(conn_s, buffer, MAX_LINE-1);
 
 
-    /*  Send string to echo server, and retrieve response  */
+			/*  Output echoed string  */
 
-    Writeline(conn_s, buffer, strlen(buffer));
-    Readline(conn_s, buffer, MAX_LINE-1);
-
-
-    /*  Output echoed string  */
-
-    printf("Echo response: %s\n", buffer);
+			printf("Echo response: %s\n", buffer);
+		}
+    }
 
     return EXIT_SUCCESS;
 }
