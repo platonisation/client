@@ -62,34 +62,69 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort);
 
 /*  Read a line from a socket  */
 
-ssize_t Readline(int sockd, void *vptr, size_t maxlen) {
-    ssize_t n, rc;
-    char    c, *buffer;
+int Readline(int sockd, char* buffer, size_t maxlen) {
 
-    buffer = vptr;
+	//data to read
+	unsigned char start;
+	unsigned char src[4];
+	unsigned char dst[4];
+	unsigned char size;
+	unsigned char data[20];
 
-    for ( n = 1; n < maxlen; n++ ) {
+//	if ( (rc = read(sockd, data, 12)) == 12 ){
+//	printf("\n\nCOCOU\n\n");
+//	printf("Val : %s\n",data);
+//	}
 
-	if ( (rc = read(sockd, &c, 1)) == 1 ) {
-	    *buffer++ = c;
-	    if ( c == '\n' )
-		break;
+	//read selection
+	fd_set read_selector;
+	//timeout of read
+	struct timeval timeout;
+	timeout.tv_sec = 30;
+	timeout.tv_usec = 0;
+	//return value
+	int retval;
+	//init read selection
+	FD_ZERO(&read_selector);
+	FD_SET(sockd,&read_selector);
+	retval = select(sockd+1,&read_selector,NULL,NULL,NULL);
+	if(retval) {
+		//treat data
+		read(sockd, &start, 1);
+		if (start == 0xFE) {
+//			read(sockd,src,4);
+//			read(sockd,dst,4);
+			read(sockd,&size,1);
+			//size in bytes
+			if(size < 10000000){//10Mo, msg
+				if((read(sockd,buffer,size) != size)){
+					//Lecture ok
+					printf("Cannot read %d datas\n",size);
+				}
+				else {
+//					doAction(buffer,size);
+				}
+
+			}
+			else { // files
+				//attention bug ! client envoie coucou trouve un fichier
+				printf("This is a file\n");
+			}
+		}
+		else {
+			printf("Not a starting sequence\n");
+		}
 	}
-	else if ( rc == 0 ) {
-	    if ( n == 1 )
-		return 0;
-	    else
-		break;
+	else if(retval == -1){
+		//treat error
+		printf("RETVAL==1\n");
 	}
-	else {
-	    if ( errno == EINTR )
-		continue;
-	    return -1;
+	else{
+		//treat no data found
+		printf("NODATA?\n");
 	}
-    }
 
-    *buffer = 0;
-    return n;
+	return 1;
 }
 
 
@@ -99,33 +134,39 @@ ssize_t Writeline(int sockd, const void *vptr, size_t n) {
 
 	size_t      nleft;
     ssize_t     nwritten;
-     char buffer[1000];//attention a ne pas depasser
-buffer[0]=0xFE;
-buffer[1]=0x01;
-strcat(buffer,vptr);
-//    buffer = vptr;
+    char* buffer;//attention a ne pas depasser
+    buffer = vptr;
     nleft  = n;
 
 //   unsigned char buffer[12]={0xFE,0x01,0x69};
-    if(write(sockd, buffer, 3) <0){
-    	printf("FAILIED");
-    }
-
-//    while ( nleft > 0 ) {
-//	if ( (nwritten = write(sockd, buffer, nleft)) <= 0 ) {
-//	    if ( errno == EINTR )
-//		nwritten = 0;
-//	    else
-//		return -1;
-//	}
-//	nleft  -= nwritten;
-//	buffer += nwritten;
+//    if(write(sockd, buffer, 3) <0){
+//    	printf("FAILIED");
 //    }
+
+    while ( nleft > 0 ) {
+	if ( (nwritten = write(sockd, buffer, nleft)) <= 0 ) {
+	    if ( errno == EINTR )
+		nwritten = 0;
+	    else
+		return -1;
+	}
+	nleft  -= nwritten;
+	buffer += nwritten;
+    }
 
     return n;
 }
 
+char* parseMessage(char* buffer, int size) {
+	char* s;
+	s = malloc(size*sizeof(char) + 2);
+	s[0]=0xFE;
+	s[1]=strlen(buffer);
 
+	strcat(s,buffer);
+
+	return s;
+}
 
 /*  main()  */
 
@@ -141,6 +182,7 @@ int main(int argc, char *argv[]) {
     char     *szPort;                /*  Holds remote port         */
     char     *endptr;                /*  for strtol()              */
 
+    char* msgToSend;
 
     /*  Get command line arguments  */
 
@@ -199,14 +241,14 @@ int main(int argc, char *argv[]) {
 		}
 		else {
 			/*  Send string to echo server, and retrieve response  */
-
-			Writeline(conn_s, buffer, strlen(buffer));
-			Readline(conn_s, buffer, MAX_LINE-1);
-
+			msgToSend = parseMessage(buffer,strlen(buffer));
+			Writeline(conn_s, msgToSend, strlen(msgToSend));
+			Readline(conn_s, msgToSend, MAX_LINE-1);
 
 			/*  Output echoed string  */
 
-			printf("Echo response: %s\n", buffer);
+			printf("Echo response: %s\n", msgToSend);
+			free(msgToSend);
 		}
     }
 
