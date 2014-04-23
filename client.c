@@ -29,17 +29,6 @@ des utilisateurs appartenant à ce group e.
 **L'utilisateur qui a créé le group e a le droit d'expulser les autres utilisateurs qui ont rejoint le
 groupe
 
- Serveur
-**Des notications sont envoyées aux clients à chaque connexion et déconnexion.
-**Chaque serveur doit maintenir une liste des membres connectés sur le réseau.
-**Un utilisateur p eut créer un compte (pseudo / mot de passe). Ce doit être une notion globale au
-réseau : un compte enregistré depuis un serveur doit être reconnu à une pro chaine connexion sur
-un autre serveur.
-**Un utilisateur enregistré p eut être administrateur du réseau. Il p eut alors expulser bannir un
-autre utilisateur
-
-
-
 Principe le client envoie une commande au serveur, le serveur répond. exemple :
 
 > ??
@@ -110,12 +99,14 @@ ssize_t Writeline(int sockd, const void *vptr, size_t n) {
 
 	size_t      nleft;
     ssize_t     nwritten;
-//     char *buffer;
-
+     char buffer[1000];//attention a ne pas depasser
+buffer[0]=0xFE;
+buffer[1]=0x01;
+strcat(buffer,vptr);
 //    buffer = vptr;
     nleft  = n;
 
-   unsigned char buffer[12]={0xFE,0x01,0x69};
+//   unsigned char buffer[12]={0xFE,0x01,0x69};
     if(write(sockd, buffer, 3) <0){
     	printf("FAILIED");
     }
