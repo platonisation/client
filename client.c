@@ -55,118 +55,8 @@ ______________________
 
 #define MAX_LINE           (1000)
 
+#include "dependencies/communication/communication.h"
 
-/*  Function declarations  */
-
-int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort);
-
-/*  Read a line from a socket  */
-
-int Readline(int sockd, char* buffer, size_t maxlen) {
-
-	//data to read
-	unsigned char start;
-	unsigned char src[4];
-	unsigned char dst[4];
-	unsigned char size;
-	unsigned char data[20];
-
-//	if ( (rc = read(sockd, data, 12)) == 12 ){
-//	printf("\n\nCOCOU\n\n");
-//	printf("Val : %s\n",data);
-//	}
-
-	//read selection
-	fd_set read_selector;
-	//timeout of read
-	struct timeval timeout;
-	timeout.tv_sec = 30;
-	timeout.tv_usec = 0;
-	//return value
-	int retval;
-	//init read selection
-	FD_ZERO(&read_selector);
-	FD_SET(sockd,&read_selector);
-	retval = select(sockd+1,&read_selector,NULL,NULL,NULL);
-	if(retval) {
-		//treat data
-		read(sockd, &start, 1);
-		if (start == 0xFE) {
-//			read(sockd,src,4);
-//			read(sockd,dst,4);
-			read(sockd,&size,1);
-			//size in bytes
-			if(size < 10000000){//10Mo, msg
-				if((read(sockd,buffer,size) != size)){
-					//Lecture ok
-					printf("Cannot read %d datas\n",size);
-				}
-				else {
-//					doAction(buffer,size);
-				}
-
-			}
-			else { // files
-				//attention bug ! client envoie coucou trouve un fichier
-				printf("This is a file\n");
-			}
-		}
-		else {
-			printf("Not a starting sequence\n");
-		}
-	}
-	else if(retval == -1){
-		//treat error
-		printf("RETVAL==1\n");
-	}
-	else{
-		//treat no data found
-		printf("NODATA?\n");
-	}
-
-	return 1;
-}
-
-
-/*  Write a line to a socket  */
-
-ssize_t Writeline(int sockd, const void *vptr, size_t n) {
-
-	size_t      nleft;
-    ssize_t     nwritten;
-    char* buffer;//attention a ne pas depasser
-    buffer = vptr;
-    nleft  = n;
-
-//   unsigned char buffer[12]={0xFE,0x01,0x69};
-//    if(write(sockd, buffer, 3) <0){
-//    	printf("FAILIED");
-//    }
-
-    while ( nleft > 0 ) {
-	if ( (nwritten = write(sockd, buffer, nleft)) <= 0 ) {
-	    if ( errno == EINTR )
-		nwritten = 0;
-	    else
-		return -1;
-	}
-	nleft  -= nwritten;
-	buffer += nwritten;
-    }
-
-    return n;
-}
-
-char* parseMessage(char* buffer, int size) {
-	char* s;
-	s = malloc(size*sizeof(char) + 2);
-	s[0]=0xFE;
-	s[1]=strlen(buffer);
-
-	strcat(s,buffer);
-
-	return s;
-}
 
 /*  main()  */
 
@@ -193,16 +83,16 @@ int main(int argc, char *argv[]) {
 
     port = strtol(szPort, &endptr, 0);
     if ( *endptr ) {
-	printf("ECHOCLNT: Invalid port supplied.\n");
-	exit(EXIT_FAILURE);
+		printf("ECHOCLNT: Invalid port supplied.\n");
+		exit(EXIT_FAILURE);
     }
 
 
     /*  Create the listening socket  */
 
     if ( (conn_s = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-	fprintf(stderr, "ECHOCLNT: Error creating listening socket.\n");
-	exit(EXIT_FAILURE);
+		fprintf(stderr, "ECHOCLNT: Error creating listening socket.\n");
+		exit(EXIT_FAILURE);
     }
 
 
@@ -217,8 +107,8 @@ int main(int argc, char *argv[]) {
     /*  Set the remote IP address  */
 
     if ( inet_aton(szAddress, &servaddr.sin_addr) <= 0 ) {
-	printf("ECHOCLNT: Invalid remote IP address.\n");
-	exit(EXIT_FAILURE);
+		printf("ECHOCLNT: Invalid remote IP address.\n");
+		exit(EXIT_FAILURE);
     }
 
 
@@ -272,9 +162,124 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort) {
 	    printf("    timeclnt -a (remote IP) -p (remote port)\n\n");
 	    exit(EXIT_SUCCESS);
 	}
+	else if ( !strncmp(argv[n], "-d", 2) || !strncmp(argv[n], "-D", 2) ) {
+
+	}
 	++n;
     }
 
     return 0;
 }
+
+
+
+
+///*  Read a line from a socket  */
+//
+//int Readline(int sockd, char* buffer, size_t maxlen) {
+//
+//	//data to read
+//	unsigned char start;
+//	unsigned char src[4];
+//	unsigned char dst[4];
+//	unsigned char size;
+//	unsigned char data[20];
+//
+////	if ( (rc = read(sockd, data, 12)) == 12 ){
+////	printf("\n\nCOCOU\n\n");
+////	printf("Val : %s\n",data);
+////	}
+//
+//	//read selection
+//	fd_set read_selector;
+//	//timeout of read
+//	struct timeval timeout;
+//	timeout.tv_sec = 30;
+//	timeout.tv_usec = 0;
+//	//return value
+//	int retval;
+//	//init read selection
+//	FD_ZERO(&read_selector);
+//	FD_SET(sockd,&read_selector);
+//	retval = select(sockd+1,&read_selector,NULL,NULL,NULL);
+//	if(retval) {
+//		//treat data
+//		read(sockd, &start, 1);
+//		if (start == 0xFE) {
+////			read(sockd,src,4);
+////			read(sockd,dst,4);
+//			read(sockd,&size,1);
+//			//size in bytes
+//			if(size < 10000000){//10Mo, msg
+//				if((read(sockd,buffer,size) != size)){
+//					//Lecture ok
+//					printf("Cannot read %d datas\n",size);
+//				}
+//				else {
+////					doAction(buffer,size);
+//				}
+//
+//			}
+//			else { // files
+//				//attention bug ! client envoie coucou trouve un fichier
+//				printf("This is a file\n");
+//			}
+//		}
+//		else {
+//			printf("Not a starting sequence\n");
+//		}
+//	}
+//	else if(retval == -1){
+//		//treat error
+//		printf("RETVAL==1\n");
+//	}
+//	else{
+//		//treat no data found
+//		printf("NODATA?\n");
+//	}
+//
+//	return 1;
+//}
+//
+//
+///*  Write a line to a socket  */
+//
+//ssize_t Writeline(int sockd, const void *vptr, size_t n) {
+//
+//	size_t      nleft;
+//    ssize_t     nwritten;
+//    char* buffer;//attention a ne pas depasser
+//    buffer = vptr;
+//    nleft  = n;
+//
+////   unsigned char buffer[12]={0xFE,0x01,0x69};
+////    if(write(sockd, buffer, 3) <0){
+////    	printf("FAILIED");
+////    }
+//
+//    while ( nleft > 0 ) {
+//	if ( (nwritten = write(sockd, buffer, nleft)) <= 0 ) {
+//	    if ( errno == EINTR )
+//		nwritten = 0;
+//	    else
+//		return -1;
+//	}
+//	nleft  -= nwritten;
+//	buffer += nwritten;
+//    }
+//
+//    return n;
+//}
+
+//char* parseMessage(char* buffer, int size) {
+//	char* s;
+//	s = malloc(size*sizeof(char) + 2);
+//	s[0]=0xFE;
+//	s[1]=strlen(buffer);
+//
+//	strcat(s,buffer);
+//
+//	return s;
+//}
+
 
