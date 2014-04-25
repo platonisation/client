@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     char     *szPort;                /*  Holds remote port         */
     char     *endptr;                /*  for strtol()              */
 
-    char* msgToSend = malloc(sizeof(char)*MAX_LINE+1);
+    char* msgToSend = malloc(sizeof(char)*MAX_LINE);
 
     /*  Get command line arguments  */
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 	exit(EXIT_FAILURE);
     }
 
-//    while(!quit){
+    while(!quit){
 
 		/*  Get string to echo from user  */
 
@@ -131,8 +131,8 @@ int main(int argc, char *argv[]) {
 		}
 		else {
 			/*  Send string to echo server, and retrieve response  */
-			msgToSend = parseMessage(buffer,strlen(buffer));
-			Writeline(conn_s, msgToSend, strlen(msgToSend));
+			msgToSend = parseMessage(buffer,strlen(buffer)+1);
+			Writeline(conn_s, msgToSend, strlen(msgToSend)+1);
 			Readline(conn_s, msgToSend, MAX_LINE-1);
 
 			/*  Output echoed string  */
@@ -140,7 +140,15 @@ int main(int argc, char *argv[]) {
 			printf("Echo response: %s\n", msgToSend);
 //			free(msgToSend);
 		}
-//    }
+    }
+
+		/*  Close the connected socket  */
+
+	if ( close(conn_s) < 0 ) {
+		fprintf(stderr, "ECHOSERV: Error calling close()\n");
+		exit(EXIT_FAILURE);
+		debugTrace("LE CLIENT IS DEAD !\n");
+	}
 
     return EXIT_SUCCESS;
 }
