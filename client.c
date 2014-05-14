@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     char     *szPort;                /*  Holds remote port         */
     char     *endptr;                /*  for strtol()              */
 
-    char* msgToSend = malloc(sizeof(char)*MAX_LINE);
+    char* msgToSend;// = malloc(sizeof(char)*MAX_LINE);
 
     /*  Get command line arguments  */
 
@@ -122,7 +122,6 @@ int main(int argc, char *argv[]) {
     while(!quit){
 
 		/*  Get string to echo from user  */
-
 		printf("Enter the string to echo: ");
 		fgets(buffer, MAX_LINE, stdin);
 
@@ -132,13 +131,12 @@ int main(int argc, char *argv[]) {
 		else {
 			/*  Send string to echo server, and retrieve response  */
 			msgToSend = parseMessage(buffer,strlen(buffer)+1);
-			Writeline(conn_s, msgToSend, strlen(msgToSend)+1);
+			Writeline(conn_s, msgToSend, strlen(msgToSend));
 			Readline(conn_s, msgToSend, MAX_LINE-1);
 
 			/*  Output echoed string  */
 
 			printf("Echo response: %s\n", msgToSend);
-//			free(msgToSend);
 		}
     }
 
