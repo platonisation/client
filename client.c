@@ -54,6 +54,7 @@ ______________________
 /*  Global constants  */
 
 #define MAX_LINE           (1000)
+#define MAX_USR_LENGTH 		30
 
 #include "dependencies/communication/communication.h"
 
@@ -73,10 +74,11 @@ int main(int argc, char *argv[]) {
     char     *endptr;                /*  for strtol()              */
 
     char* msgToSend;// = malloc(sizeof(char)*MAX_LINE);
+    char username[MAX_USR_LENGTH];
 
     /*  Get command line arguments  */
 
-    ParseCmdLine(argc, argv, &szAddress, &szPort);
+    ParseCmdLine(argc, argv, &szAddress, &szPort, username);
 
 
     /*  Set the remote port  */
@@ -153,13 +155,18 @@ int main(int argc, char *argv[]) {
 }
 
 
-int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort) {
+int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char * username) {
 
     int n = 1;
 
     while ( n < argc ) {
 	if ( !strncmp(argv[n], "-a", 2) || !strncmp(argv[n], "-A", 2) ) {
 	    *szAddress = argv[++n];
+	}
+	else if( !strncmp(argv[n], "-u", 2) || !strncmp(argv[n], "-U", 2) ) {
+	   strncpy(username,argv[++n],sizeof(username)-1);
+	   username[sizeof(username)-1] = '\0';
+	   printf("Bienvenue %s\n",username);
 	}
 	else if ( !strncmp(argv[n], "-p", 2) || !strncmp(argv[n], "-P", 2) ) {
 	    *szPort = argv[++n];
