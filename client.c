@@ -162,9 +162,11 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char *
 	    *szAddress = argv[++n];
 	}
 	else if( !strncmp(argv[n], "-u", 2) || !strncmp(argv[n], "-U", 2) ) {
-	   strncpy(username,argv[++n],sizeof(username)-1);
-	   username[sizeof(username)-1] = '\0';
-	   printf("Bienvenue %s\n",username);
+	printf("Under construction");
+			/*  printf("argv(lebon) : %s, size de username  = %d\n",argv[n+1], strlen(*username));
+		strncpy(username,argv[++n],strlen(*username)-1);
+	   username[strlen(*username)-1] = '\0';
+	   printf("Bienvenue %s\n",username);*/
 	}
 	else if ( !strncmp(argv[n], "-p", 2) || !strncmp(argv[n], "-P", 2) ) {
 	    *szPort = argv[++n];
