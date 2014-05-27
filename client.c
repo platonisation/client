@@ -133,9 +133,7 @@ int main(int argc, char *argv[]) {
 		else {
 			/*  Send string to echo server, and retrieve response  */
 			msgToSend = parseMessage(buffer,strlen(buffer));
-			printf("size : %d\n",strlen(buffer));
 			Writeline(conn_s, msgToSend, strlen(buffer)+1);
-			debugTrace("Sent");
 			Readline(conn_s, msgToSend, MAX_LINE-1);
 			/*  Output echoed string  */
 
