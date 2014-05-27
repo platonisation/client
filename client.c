@@ -54,10 +54,10 @@ ______________________
 /*  Global constants  */
 
 #define MAX_LINE           (1000)
-#define MAX_USR_LENGTH 		30
 
 #include "dependencies/communication/communication.h"
 
+void sendUserDatas(int sock,char* username);
 
 /*  main()  */
 
@@ -121,6 +121,8 @@ int main(int argc, char *argv[]) {
 	exit(EXIT_FAILURE);
     }
 
+    sendUserDatas(conn_s, username);
+
     while(!quit){
 
 		/*  Get string to echo from user  */
@@ -183,7 +185,13 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char *
     return 0;
 }
 
-
+void sendUserDatas(int sock,char* username) {
+	char* buf = malloc(sizeof(char) * (MAX_USR_LENGTH + 4));
+	strcat(buf,username);
+	//FIXEME:APASBIEN
+	strcat(buf," 1 1");
+	Writeline(sock,buf,strlen(buf)+1);
+}
 
 
 ///*  Read a line from a socket  */
