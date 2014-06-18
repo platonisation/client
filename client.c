@@ -127,6 +127,8 @@ int main(int argc, char *argv[]) {
 	exit(EXIT_FAILURE);
     }
 
+
+
     sendUserDatas(conn_s, username);
 
     while(!quit){
@@ -136,6 +138,7 @@ int main(int argc, char *argv[]) {
     //    	descripteurs qui ont changé de statut.
     	 /* Remember the main socket */
         FD_SET(STDIN_FILENO,&read_selector);
+        FD_SET(conn_s,&read_selector);
 
         ret = select(FD_SETSIZE,&read_selector,(fd_set *)NULL,(fd_set *)NULL,&tv);
         if(ret>0){
@@ -155,10 +158,12 @@ int main(int argc, char *argv[]) {
 					Writeline(conn_s, msgToSend, strlen(buffer)+1);
 				}
         	}
+        	else{
+        		if(Readline(conn_s, msgToSend, MAX_LINE-1) > 0){
+					printf("Echo response: %s\n", msgToSend);
+				}
+        	}
         }
-		if(Readline(conn_s, msgToSend, MAX_LINE-1) > 0){
-			printf("Echo response: %s\n", msgToSend);
-		}
     }
 
 		/*  Close the connected socket  */
