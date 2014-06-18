@@ -72,9 +72,15 @@ int main(int argc, char *argv[]) {
     char     *szAddress;             /*  Holds remote IP address   */
     char     *szPort;                /*  Holds remote port         */
     char     *endptr;                /*  for strtol()              */
-
+    fd_set read_selector;
     char* msgToSend;// = malloc(sizeof(char)*MAX_LINE);
     char username[MAX_USR_LENGTH];
+    int ret;
+
+
+    struct timeval tv;
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
 
     /*  Get command line arguments  */
 
@@ -125,20 +131,32 @@ int main(int argc, char *argv[]) {
 
     while(!quit){
 
-		/*  Get string to echo from user  */
-		printf("Enter the string to echo: ");
-		fgets(buffer, MAX_LINE, stdin);
+        FD_ZERO(&read_selector);
+    //    	Update FD's : En sortie, les ensembles sont modifiés pour  indiquer  les
+    //    	descripteurs qui ont changé de statut.
+    	 /* Remember the main socket */
+        FD_SET(STDIN_FILENO,&read_selector);
 
-		if(strcmp(buffer,"quit\n") == 0){
-			quit=1;
-		}
-		else {
-			/*  Send string to echo server, and retrieve response  */
-			msgToSend = parseMessage(buffer,strlen(buffer));
-			Writeline(conn_s, msgToSend, strlen(buffer)+1);
-			Readline(conn_s, msgToSend, MAX_LINE-1);
-			/*  Output echoed string  */
-
+        ret = select(FD_SETSIZE,&read_selector,(fd_set *)NULL,(fd_set *)NULL,&tv);
+        if(ret>0){
+        	if(FD_ISSET(STDIN_FILENO, &read_selector)) {
+        		if (!fgets(buffer, sizeof(buffer), stdin)){
+        			if (ferror(stdin)) {
+						perror("cannot read the message you wrote\n");
+						exit(1);
+					}
+        		}
+				if(strcmp(buffer,"quit\n") == 0){
+					quit=1;
+				}
+				else {
+					/*  Send string to echo server, and retrieve response  */
+					msgToSend = parseMessage(buffer,strlen(buffer));
+					Writeline(conn_s, msgToSend, strlen(buffer)+1);
+				}
+        	}
+        }
+		if(Readline(conn_s, msgToSend, MAX_LINE-1) > 0){
 			printf("Echo response: %s\n", msgToSend);
 		}
     }
@@ -164,11 +182,10 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char *
 	    *szAddress = argv[++n];
 	}
 	else if( !strncmp(argv[n], "-u", 2) || !strncmp(argv[n], "-U", 2) ) {
-	printf("Under construction");
-			/*  printf("argv(lebon) : %s, size de username  = %d\n",argv[n+1], strlen(*username));
-		strncpy(username,argv[++n],strlen(*username)-1);
-	   username[strlen(*username)-1] = '\0';
-	   printf("Bienvenue %s\n",username);*/
+//		printf("argv(lebon) : %s, size de username  = %d\n",argv[n+1], strlen(*username));
+		strncpy(username,argv[++n],sizeof(username));
+		username[strlen(username)] = '\0';
+		printf("Bienvenue %s\n",username);
 	}
 	else if ( !strncmp(argv[n], "-p", 2) || !strncmp(argv[n], "-P", 2) ) {
 	    *szPort = argv[++n];
