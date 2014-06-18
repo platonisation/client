@@ -131,6 +131,8 @@ int main(int argc, char *argv[]) {
 
     sendUserDatas(conn_s, username);
 
+    printf("Entrez vos commande\n");
+
     while(!quit){
 
         FD_ZERO(&read_selector);
@@ -140,6 +142,7 @@ int main(int argc, char *argv[]) {
         FD_SET(STDIN_FILENO,&read_selector);
         FD_SET(conn_s,&read_selector);
 
+        fflush(STDIN_FILENO);
         ret = select(FD_SETSIZE,&read_selector,(fd_set *)NULL,(fd_set *)NULL,&tv);
         if(ret>0){
         	if(FD_ISSET(STDIN_FILENO, &read_selector)) {
@@ -158,12 +161,19 @@ int main(int argc, char *argv[]) {
 					Writeline(conn_s, msgToSend, strlen(buffer)+1);
 				}
         	}
-        	else{
+        	else if(FD_ISSET(conn_s, &read_selector)){
         		if(Readline(conn_s, msgToSend, MAX_LINE-1) > 0){
-					printf("Echo response: %s\n", msgToSend);
+					printf("%s\n", msgToSend);
 				}
         	}
+        	else {
+        		exit(0);
+        	}
         }
+        else if(ret == 0){
+//        	exit(0);
+        }
+        sleep(1);
     }
 
 		/*  Close the connected socket  */
