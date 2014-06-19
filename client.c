@@ -58,6 +58,7 @@ ______________________
 #include "dependencies/communication/communication.h"
 
 void sendUserDatas(int sock,char* username);
+void createFile(char* msg);
 
 /*  main()  */
 
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
     char     *szPort;                /*  Holds remote port         */
     char     *endptr;                /*  for strtol()              */
     fd_set read_selector;
-    char* msgToSend;// = malloc(sizeof(char)*MAX_LINE);
+    char* msgToSend = malloc(sizeof(char)*MAX_LINE);
     char username[MAX_USR_LENGTH];
     int ret;
 
@@ -142,7 +143,6 @@ int main(int argc, char *argv[]) {
         FD_SET(STDIN_FILENO,&read_selector);
         FD_SET(conn_s,&read_selector);
 
-        fflush(STDIN_FILENO);
         ret = select(FD_SETSIZE,&read_selector,(fd_set *)NULL,(fd_set *)NULL,&tv);
         if(ret>0){
         	if(FD_ISSET(STDIN_FILENO, &read_selector)) {
@@ -163,10 +163,21 @@ int main(int argc, char *argv[]) {
         	}
         	else if(FD_ISSET(conn_s, &read_selector)){
         		if(Readline(conn_s, msgToSend, MAX_LINE-1) > 0){
-					printf("%s\n", msgToSend);
+//					printf("%s\n", msgToSend);
+        			char* sv;
+        			char* file=NULL;
+					file = strtok_r(msgToSend,";",&sv);
+					if(file != NULL && strcmp(sv,"")){ //THIS IS A FILE
+						printf("THIS IS A FILE%s\n",sv);
+						createFile(sv);
+
+					}
 				}
+        		else
+        			printf("Jai pas réussi a lire\n");
         	}
         	else {
+        		printf("EXIT\n");
         		exit(0);
         	}
         }
@@ -217,6 +228,17 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char *
     }
 
     return 0;
+}
+
+void createFile(char* msg){
+	FILE* file = NULL;
+	file = fopen("receive","w+");
+	printf("BITE\n");
+	if(file != NULL){
+		fputs(msg, file);
+//		int c = fclose(a);
+	}
+	printf("REFINI\n");
 }
 
 void sendUserDatas(int sock,char* username) {
