@@ -1,46 +1,3 @@
-/*
- * client.c
- *
- *  Created on: Apr 16, 2014
- *  Author: Timoté Bonnin
- *
- *  School project :
- *
- *
-Dans la continuité des TPs, le pro jet a p our ob jectif la mise en œuvre d'une application de chat client/serveur en C:
-**échanger des messages entre 2, plusieurs, ou la totalité des clients connectés sur le réseau ;
-**s'envoyer des fichiers ;
-**échanger des messages entre clients du même réseau local sans intervention d'un serveur.
-
-Afin de pallier la faiblesse inhérente a une architecture centralisée, votre réseau de chat doit prévoir
-la collab oration de plusieurs serveurs afin d'en ourir une vision globale aux utilisateurs connectés à
-chaque serveur.
-
-
- Client
-**Chaque client est identié par un pseudo.
-**Un client peut lister les pseudos des utilisateurs connectés au réseau, et ignorer les messages et
-demandes d'envoi de chiers d'un ou plusieurs d'entre eux.
-**Des group es peuvent être créés par n'imp orte quel utilisateur et n'imp orte quel utilisateur p eut
-rejoindre un group e.
-**Un utilisateur peut lister les pseudos des utilisateurs d'un group e. Un group e représente un sous-
-ensemble d'utilisateurs. Les messages émis à destination d'un group e sont transmis à l'ensemble
-des utilisateurs appartenant à ce group e.
-**L'utilisateur qui a créé le group e a le droit d'expulser les autres utilisateurs qui ont rejoint le
-groupe
-
-Principe le client envoie une commande au serveur, le serveur répond. exemple :
-
-> ??
-< liste des commande : ...
-______________________
-
-> help
-<liste des commande : ...
- *
- */
-
-
 #include <sys/socket.h>       /*  socket definitions        */
 #include <sys/types.h>        /*  socket types              */
 #include <arpa/inet.h>        /*  inet (3) funtions         */
@@ -132,14 +89,12 @@ int main(int argc, char *argv[]) {
 
     sendUserDatas(conn_s, username);
 
-    printf("Entrez vos commande\n");
+    printf("Entrez vos commandes\n");
 
     while(!quit){
 
         FD_ZERO(&read_selector);
-    //    	Update FD's : En sortie, les ensembles sont modifiés pour  indiquer  les
-    //    	descripteurs qui ont changé de statut.
-    	 /* Remember the main socket */
+       	 /* Remember the main socket */
         FD_SET(STDIN_FILENO,&read_selector);
         FD_SET(conn_s,&read_selector);
 
@@ -166,7 +121,6 @@ int main(int argc, char *argv[]) {
         			if(strstr(msgToSend,"ENDOFFILE")) {
 						char* file = malloc(strlen(msgToSend)*sizeof(char));
 						char* temp = malloc(strlen(msgToSend)*sizeof(char));
-	//        			memset(temp,0,strlen(msgToSend));
 						strcpy(temp,msgToSend);
 						file = strtok(msgToSend,";");
 						if(file != NULL && strcmp(file,"ENDOFFILE")){ //THIS IS A FILE
@@ -183,7 +137,7 @@ int main(int argc, char *argv[]) {
 					}
 				}
         		else
-        			printf("Jai pas réussi a lire\n");
+        			printf("Read error\n");
         	}
         	else {
         		printf("EXIT\n");
@@ -217,7 +171,6 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char *
 	    *szAddress = argv[++n];
 	}
 	else if( !strncmp(argv[n], "-u", 2) || !strncmp(argv[n], "-U", 2) ) {
-//		printf("argv(lebon) : %s, size de username  = %d\n",argv[n+1], strlen(*username));
 		strncpy(username,argv[++n],sizeof(username));
 		username[strlen(username)] = '\0';
 		printf("Bienvenue %s\n",username);
@@ -242,19 +195,15 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char *
 void createFile(char* msg){
 	printf("TS%s\n",msg);
 	FILE* file = NULL;
-	//msg[strlen(msg)]='\0';
 	file = fopen("receive","w+");
 	if(file != NULL){
 		fputs(msg, file);
-
-//		fclose(file);
 	}
 }
 
 void sendUserDatas(int sock,char* username) {
 	char* buf = malloc(sizeof(char) * (MAX_USR_LENGTH + 4));
 	strcat(buf,username);
-	//FIXEME:APASBIEN
 	strcat(buf," 1 1");
 	Writeline(sock,buf,strlen(buf)+1);
 }
