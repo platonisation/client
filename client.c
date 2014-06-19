@@ -193,7 +193,7 @@ int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort, char *
 }
 
 void createFile(char* msg){
-	printf("TS%s\n",msg);
+	printf("%s\n",msg);
 	FILE* file = NULL;
 	file = fopen("receive","w+");
 	if(file != NULL){
